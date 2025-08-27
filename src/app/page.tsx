@@ -10,7 +10,7 @@ export default function Home() {
         0
     ).getDate();
 
-    let days = [];
+    const days = [];
     for (let i = 1; i <= nrDays; i++) {
         const temp = {
             dayNr: i,
@@ -19,7 +19,8 @@ export default function Home() {
                 date.getMonth(),
                 i)
                 .toLocaleDateString(
-                    'en-us', { weekday: "long" }
+                    "en-us",
+                    { weekday: "long" }
                 ),
             doneClass: "not-done"
         };
@@ -29,6 +30,7 @@ export default function Home() {
 
     const [daysState, updateDays] = useState(days);
     const [streak, setStreak] = useState(0);
+    const [longestStreak, setLongestStreak] = useState(0);
 
     function toggleDone(day) {
         if (day.dayNr > (new Date).getDate()) return;
@@ -42,6 +44,15 @@ export default function Home() {
                         "done"
                 } : d);
 
+        const streak = calculateStreak(tempDays);
+        setStreak(streak);
+        const longestStreak = calculateLongestStreak(tempDays);
+        setLongestStreak(longestStreak);
+
+        updateDays(tempDays);
+    }
+
+    function calculateStreak(tempDays: any[]): number {
         let streak = 0;
         let i = tempDays.findIndex(
             d => d.dayNr === (new Date().getDate())
@@ -50,8 +61,26 @@ export default function Home() {
             i--;
             streak++;
         }
-        setStreak(streak);
-        updateDays(tempDays);
+        return streak;
+    }
+
+    function calculateLongestStreak(tempDays: any[])
+        : number {
+        let longestStreak = 0;
+        let newLongestStreak = 0;
+        for (const day of tempDays) {
+            if (day.doneClass === "done") {
+                newLongestStreak++;
+                if (newLongestStreak > longestStreak) {
+                    longestStreak = newLongestStreak;
+                }
+            }
+            else {
+                newLongestStreak = 0;
+            }
+        }
+
+        return longestStreak;
     }
 
     return (
@@ -62,7 +91,8 @@ export default function Home() {
                     day={day}
                     click={() => toggleDone(day)}
                 />)}
-            <h2>Streak: {streak}</h2>
+            <h2>Current Streak: {streak}</h2>
+            <h2>Longest Streak: {longestStreak}</h2>
         </>
     );
 }
