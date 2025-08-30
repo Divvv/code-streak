@@ -1,4 +1,4 @@
-import { StreakDay } from "../page";
+import { StreakDay } from "../models/StreakDay";
 
 interface DayBoxProps {
   day: StreakDay;
@@ -8,6 +8,7 @@ interface DayBoxProps {
 export default function DayBox({ day, click }: DayBoxProps) {
   const today = new Date();
   const isDayToday = day.dayNr === today.getDate();
+  const isDoneClass = day.done ? "done" : "not-done";
   const isTodayClass = isDayToday ? "today" : null;
   const isAfterTodayClass =
     day.dayNr > (new Date).getDate()
@@ -19,7 +20,7 @@ export default function DayBox({ day, click }: DayBoxProps) {
       <button
         className={
           `day-button
-                ${day.doneClass}
+                ${isDoneClass}
                 ${isTodayClass}
                 ${isAfterTodayClass}`}
         onClick={click}>

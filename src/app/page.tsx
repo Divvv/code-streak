@@ -1,14 +1,7 @@
 'use client';
 import { useState } from "react";
 import DayBox from "./components/daybox";
-
-export interface StreakDay {
-  dayNr: number;
-  dayName: string;
-  monthNr: number;
-  done: boolean;
-  doneClass: string
-};
+import { StreakDay } from "./models/StreakDay";
 
 export default function Home() {
   const date: Date = new Date();
@@ -37,6 +30,7 @@ export default function Home() {
             { weekday: "long" }
           ),
         monthNr: date.getMonth(),
+        year: date.getFullYear(),
         done: false,
         doneClass: "not-done"
       };
@@ -49,35 +43,38 @@ export default function Home() {
   function toggleDone(day: StreakDay) {
     if (day.dayNr > (new Date).getDate()) return;
 
+    const tempDay = day;
+    tempDay.done = !tempDay.done;
+
+    const tempDoneDays: StreakDay[] = doneDaysState;
+    if (tempDay.done) tempDoneDays.push(tempDay);
+    else {
+      const index = tempDoneDays.findIndex(
+        d => d.dayNr === tempDay.dayNr
+          && d.monthNr === tempDay.monthNr
+          && d.year === tempDay.year);
+      if (index > -1) tempDoneDays.splice(index, 1);
+    }
+
     const tempDays: StreakDay[] = daysState.map(
-      d => d.dayNr === day.dayNr ?
+      d => (d.dayNr === day.dayNr && d.monthNr === day.monthNr && d.year === day.year) ?
         {
           ...d,
-          done: !day.done,
+          //done: day.done === false ?
+          // false : true,
           doneClass: day.doneClass === "done" ?
             "not-done" :
             "done"
         } : d);
 
     const streak = calculateStreak(tempDays);
-    setStreak(streak);
     const longestStreak = calculateLongestStreak(tempDays);
-    setLongestStreak(longestStreak);
 
+    setStreak(streak);
+    setLongestStreak(longestStreak);
+    updateDoneDays(tempDoneDays);
     updateDays(tempDays);
 
-    const tempDay: StreakDay | undefined = tempDays.find(
-      d =>
-        d.dayNr === day.dayNr &&
-        d.monthNr === day.monthNr);
-    if (tempDay === undefined) return;
-    const tempDoneDays: StreakDay[] = doneDaysState;
-    if (tempDay.done) tempDoneDays.push(tempDay);
-    else {
-      const index = tempDoneDays.findIndex(d => d.dayNr === tempDay.dayNr && d.monthNr === tempDay.monthNr);
-      if (index > -1) tempDoneDays.splice(index, 1);
-    }
-    updateDoneDays(tempDoneDays);
     console.log(tempDoneDays);
   }
 
