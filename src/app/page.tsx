@@ -83,8 +83,36 @@ export default function Home() {
         return longestStreak;
     }
 
+    function getNextMonth(date) {
+        const d = new Date(date);
+        d.setMonth(date.getMonth() + 1);
+        return d.toLocaleString('en-US', {month: 'long'});
+    }
+
+    function getPrevMonth(date) {
+        const d = new Date(date);
+        d.setMonth(date.getMonth() - 1);
+        return d.toLocaleString('en-US', {month: 'long'});
+    }
+
     return (
         <>
+        <div className="flex justify-center items-center mb-4">
+        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded min-w-32">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+</svg>
+
+        {getPrevMonth(date)}</button>
+                <span className=" px-4 py-2 ml-8 mr-8 bg-green-500 text-white rounded">{date.toLocaleString('en-US', { month: 'long'})}</span>
+        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded min-w-32">
+
+        {getNextMonth(date)}
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+</svg>
+</button>
+        </div>
             {daysState.map(day =>
                 <Day
                     key={day.dayNr}
