@@ -7,7 +7,8 @@ interface DayBoxProps {
 
 export default function DayBox({ day, click }: DayBoxProps) {
   const today = new Date();
-  const isDayToday = day.dayNr === today.getDate();
+  const isDayToday = day.dayNr === today.getDate() && day.monthNr === today.getMonth()
+    && day.year === today.getFullYear();
   const isDoneClass = day.done ? "done" : "not-done";
   const isTodayClass = isDayToday ? "today" : null;
   const isAfterTodayClass =

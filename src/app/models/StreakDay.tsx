@@ -6,6 +6,5 @@ export interface StreakDay {
   monthNr: number;
   year: number;
   done: boolean;
-  doneClass: string;
 }
 

@@ -5,11 +5,11 @@ import { StreakDay } from "./models/StreakDay";
 
 export default function Home() {
   const date: Date = new Date();
+  const [doneDaysState, updateDoneDays] = useState<StreakDay[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(date);
   const [daysState, updateDays] = useState<StreakDay[]>(getDaysForMonth(selectedDate));
   const [streak, setStreak] = useState<number>(0);
   const [longestStreak, setLongestStreak] = useState<number>(0);
-  const [doneDaysState, updateDoneDays] = useState<StreakDay[]>([]);
 
   function getDaysForMonth(date: Date) {
     const nrDays = new Date(
@@ -32,11 +32,22 @@ export default function Home() {
         monthNr: date.getMonth(),
         year: date.getFullYear(),
         done: false,
-        doneClass: "not-done"
       };
 
       days.push(temp);
     }
+
+    for (const d of days) {
+      for (const a of doneDaysState) {
+        if (
+          d.dayNr === a.dayNr &&
+          d.monthNr === a.monthNr &&
+          d.year === a.year) {
+          d.done = true;
+        }
+      }
+    }
+
     return days;
   }
 
@@ -55,39 +66,52 @@ export default function Home() {
           && d.year === tempDay.year);
       if (index > -1) tempDoneDays.splice(index, 1);
     }
+    updateDoneDays(tempDoneDays);
 
     const tempDays: StreakDay[] = daysState.map(
       d => (d.dayNr === day.dayNr && d.monthNr === day.monthNr && d.year === day.year) ?
         {
           ...d,
-          //done: day.done === false ?
-          // false : true,
-          doneClass: day.doneClass === "done" ?
-            "not-done" :
-            "done"
+          done: tempDay.done
         } : d);
 
-    const streak = calculateStreak(tempDays);
-    const longestStreak = calculateLongestStreak(tempDays);
-
-    setStreak(streak);
-    setLongestStreak(longestStreak);
-    updateDoneDays(tempDoneDays);
     updateDays(tempDays);
 
-    console.log(tempDoneDays);
+    const streak = calculateStreak(tempDoneDays);
+    setStreak(streak);
+
+    const longestStreak = calculateLongestStreak(tempDays);
+    setLongestStreak(longestStreak);
   }
 
-  function calculateStreak(tempDays: StreakDay[]): number {
+  //todo: fix this
+  function calculateStreak(doneDays: StreakDay[]): number {
     let streak = 0;
-    let i = tempDays.findIndex(
-      d => d.dayNr === (new Date().getDate())
+    const today = new Date();
+    let indexOfToday = doneDays.findIndex(
+      d => d.dayNr === (today.getDate()) &&
+        d.monthNr === today.getMonth() &&
+        d.year === today.getFullYear()
     );
-    while (tempDays[i].doneClass === "done") {
-      i--;
-      streak++;
+
+    if (indexOfToday === -1) return streak;
+
+    if (doneDays[indexOfToday].done) streak++;
+    indexOfToday--;
+    let doneCounting = false;
+    while (!doneCounting && doneDays[indexOfToday].done) {
+      if (isPreviousDay(doneDays[indexOfToday], doneDaysState[indexOfToday + 1])) {
+        indexOfToday--;
+        streak++;
+      } else { doneCounting = false; }
     }
     return streak;
+  }
+
+  function isPreviousDay(previousDay: StreakDay, currentDay: StreakDay): boolean {
+    return previousDay.dayNr === (currentDay.dayNr - 1) &&
+      previousDay.monthNr === currentDay.monthNr &&
+      previousDay.year === currentDay.year;
   }
 
   function calculateLongestStreak(tempDays: StreakDay[])
@@ -95,7 +119,7 @@ export default function Home() {
     let longestStreak = 0;
     let newLongestStreak = 0;
     for (const day of tempDays) {
-      if (day.doneClass === "done") {
+      if (day.done) {
         newLongestStreak++;
         if (newLongestStreak > longestStreak) {
           longestStreak = newLongestStreak;
