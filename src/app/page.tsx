@@ -4,31 +4,36 @@ import { useState } from "react";
 // test
 export default function Home() {
     const date = new Date();
-    const nrDays = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        0
-    ).getDate();
+    const [selectedDate, setSelectedDate] = useState(date);
+    
+    function getDaysForMonth(date){
+        const nrDays = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            0
+        ).getDate();
+        const days = [];
+        for (let i = 1; i <= nrDays; i++) {
+            const temp = {
+                dayNr: i,
+                dayName: new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    i)
+                    .toLocaleDateString(
+                        "en-us",
+                        { weekday: "long" }
+                    ),
+                    doneClass: "not-done"
+            };
 
-    const days = [];
-    for (let i = 1; i <= nrDays; i++) {
-        const temp = {
-            dayNr: i,
-            dayName: new Date(
-                date.getFullYear(),
-                date.getMonth(),
-                i)
-                .toLocaleDateString(
-                    "en-us",
-                    { weekday: "long" }
-                ),
-            doneClass: "not-done"
-        };
-
-        days.push(temp);
+            days.push(temp);
+        }
+        return days;
     }
+    
 
-    const [daysState, updateDays] = useState(days);
+    const [daysState, updateDays] = useState(getDaysForMonth(selectedDate));
     const [streak, setStreak] = useState(0);
     const [longestStreak, setLongestStreak] = useState(0);
 
@@ -83,31 +88,46 @@ export default function Home() {
         return longestStreak;
     }
 
-    function getNextMonth(date) {
+    function getNextMonthName(date) {
         const d = new Date(date);
         d.setMonth(date.getMonth() + 1);
         return d.toLocaleString('en-US', {month: 'long'});
     }
 
-    function getPrevMonth(date) {
+    function getPrevMonthName(date) {
         const d = new Date(date);
         d.setMonth(date.getMonth() - 1);
         return d.toLocaleString('en-US', {month: 'long'});
     }
 
+    function monthMoveBack() {
+        const d = new Date(selectedDate);
+        d.setMonth(selectedDate.getMonth() - 1);
+        setSelectedDate(d);
+        updateDays(getDaysForMonth(d));
+    }
+    
+    function monthMoveForward() {
+        const d = new Date(selectedDate);
+        d.setMonth(selectedDate.getMonth() + 1);
+        setSelectedDate(d);
+        updateDays(getDaysForMonth(d));
+    }
+
+
     return (
         <>
         <div className="flex justify-center items-center mb-4">
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded min-w-32">
+        <button onClick={monthMoveBack} className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded min-w-32">
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
   <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
 </svg>
 
-        {getPrevMonth(date)}</button>
-                <span className=" px-4 py-2 ml-8 mr-8 bg-green-500 text-white rounded">{date.toLocaleString('en-US', { month: 'long'})}</span>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded min-w-32">
+        {getPrevMonthName(selectedDate)}</button>
+                <span className=" px-4 py-2 ml-8 mr-8 text-white text-3xl font-bold">{selectedDate.toLocaleString('en-US', { month: 'long'})}</span>
+        <button onClick={monthMoveForward} className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded min-w-32">
 
-        {getNextMonth(date)}
+        {getNextMonthName(selectedDate)}
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
 </svg>
