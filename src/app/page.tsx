@@ -165,15 +165,6 @@ export default function Home() {
     return false;
   }
 
-  function isPreviousDay(iday: StreakDay, prevday: StreakDay) {
-    if (prevday.monthNr === iday.monthNr &&
-      prevday.year === iday.year &&
-      prevday.dayNr + 1 === iday.dayNr) {
-      return true;
-    }
-    return false;
-  }
-
   function getNextMonthName(date: Date) {
     const d = new Date(date);
     d.setDate(1);
