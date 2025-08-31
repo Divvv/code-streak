@@ -134,7 +134,9 @@ export default function Home() {
     let longestStreak = 0;
     let newLongestStreak = 0;
     for (const day of sortedDoneDays) {
-      if (day.done) {
+      if (sortedDoneDays[i - 1].monthNr === sortedDoneDays[i].monthNr &&
+        sortedDoneDays[i - 1].year === sortedDoneDays[i].year &&
+        sortedDoneDays[i - 1].dayNr === sortedDoneDays[i].dayNr - 1)) {
         newLongestStreak++;
         if (newLongestStreak > longestStreak) {
           longestStreak = newLongestStreak;
