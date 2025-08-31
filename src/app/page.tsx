@@ -2,6 +2,7 @@
 import { useState } from "react";
 import DayBox from "./components/daybox";
 import { StreakDay } from "./models/StreakDay";
+import { Brygada_1918 } from "next/font/google";
 
 export default function Home() {
   const date: Date = new Date();
@@ -86,32 +87,25 @@ export default function Home() {
 
   //todo: fix this
   function calculateStreak(doneDays: StreakDay[]): number {
-    let streak = 0;
+    if (doneDays.length === 0) return 0;
+    const lastDay = doneDays.at(-1);
     const today = new Date();
-    let indexOfToday = doneDays.findIndex(
-      d => d.dayNr === (today.getDate()) &&
-        d.monthNr === today.getMonth() &&
-        d.year === today.getFullYear()
-    );
-
-    if (indexOfToday === -1) return streak;
-
-    if (doneDays[indexOfToday].done) streak++;
-    indexOfToday--;
-    let doneCounting = false;
-    while (!doneCounting && doneDays[indexOfToday].done) {
-      if (isPreviousDay(doneDays[indexOfToday], doneDaysState[indexOfToday + 1])) {
-        indexOfToday--;
-        streak++;
-      } else { doneCounting = false; }
+    if (lastDay?.dayNr !== today.getDate() ||
+      lastDay?.monthNr !== today.getMonth() ||
+      lastDay.year !== today.getFullYear()) {
+      return 0;
     }
-    return streak;
-  }
+    let streak = 1;
 
-  function isPreviousDay(previousDay: StreakDay, currentDay: StreakDay): boolean {
-    return previousDay.dayNr === (currentDay.dayNr - 1) &&
-      previousDay.monthNr === currentDay.monthNr &&
-      previousDay.year === currentDay.year;
+    for (let i = doneDays.length - 2; i >= 0; i--) {
+      const day1 = doneDays.at(i);
+      const day2 = doneDays.at(i + 1);
+      if (day1.year === day2.year && day1.monthNr === day2.monthNr && day1.dayNr === day2.dayNr - 1) {
+        streak++;
+      } else return streak;
+    }
+
+    return streak;
   }
 
   function calculateLongestStreak(tempDays: StreakDay[])
