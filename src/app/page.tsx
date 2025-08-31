@@ -52,7 +52,10 @@ export default function Home() {
   }
 
   function toggleDone(day: StreakDay) {
-    if (day.dayNr > (new Date).getDate()) return;
+    if (day.year > (new Date).getFullYear() ||
+      day.monthNr > (new Date).getMonth() ||
+      day.dayNr > (new Date).getDate()) return;
+
 
     const tempDay = day;
     tempDay.done = !tempDay.done;

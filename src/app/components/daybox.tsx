@@ -12,7 +12,9 @@ export default function DayBox({ day, click }: DayBoxProps) {
   const isDoneClass = day.done ? "done" : "not-done";
   const isTodayClass = isDayToday ? "today" : null;
   const isAfterTodayClass =
-    day.dayNr > (new Date).getDate()
+    day.year > (new Date).getFullYear() ||
+      day.monthNr > (new Date).getMonth() ||
+      day.dayNr > (new Date).getDate()
       ? "after-today"
       : null;
 
