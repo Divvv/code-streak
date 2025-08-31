@@ -2,6 +2,7 @@
 import { useState } from "react";
 import DayBox from "./components/daybox";
 import { StreakDay } from "./models/StreakDay";
+import next from "next";
 
 export default function Home() {
   const date: Date = new Date();
@@ -124,6 +125,9 @@ export default function Home() {
 
   function calculateLongestStreak(doneDays: StreakDay[])
     : number {
+    if (doneDays.length === 0) return 0;
+    if (doneDays.length === 1) return 1;
+
     const sortedDoneDays: StreakDay[] =
       doneDays.sort((a, b) =>
         a.year - b.year ||
@@ -131,23 +135,43 @@ export default function Home() {
         a.dayNr - b.dayNr
       );
 
-    let longestStreak = 0;
-    let newLongestStreak = 0;
+    let longestStreak = 1;
+    let currentLongestStreak = 1;
+
     for (const day of sortedDoneDays) {
-      if (sortedDoneDays[i - 1].monthNr === sortedDoneDays[i].monthNr &&
-        sortedDoneDays[i - 1].year === sortedDoneDays[i].year &&
-        sortedDoneDays[i - 1].dayNr === sortedDoneDays[i].dayNr - 1)) {
-        newLongestStreak++;
-        if (newLongestStreak > longestStreak) {
-          longestStreak = newLongestStreak;
+      const nextDay = sortedDoneDays[sortedDoneDays.indexOf(day) + 1];
+      if (nextDay === undefined) return longestStreak;
+
+      if (isNextDay(day, nextDay)) {
+        currentLongestStreak++;
+        if (currentLongestStreak > longestStreak) {
+          longestStreak = currentLongestStreak;
         }
-      }
-      else {
-        newLongestStreak = 0;
+      } else {
+        currentLongestStreak = 1;
       }
     }
 
     return longestStreak;
+  }
+
+  function isNextDay(day: StreakDay, nextDay: StreakDay): boolean {
+    if (
+      day.year === nextDay.year &&
+      day.monthNr === nextDay.monthNr &&
+      day.dayNr + 1 === nextDay.dayNr
+    ) { return true; }
+
+    return false;
+  }
+
+  function isPreviousDay(iday: StreakDay, prevday: StreakDay) {
+    if (prevday.monthNr === iday.monthNr &&
+      prevday.year === iday.year &&
+      prevday.dayNr + 1 === iday.dayNr) {
+      return true;
+    }
+    return false;
   }
 
   function getNextMonthName(date: Date) {
