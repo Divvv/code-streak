@@ -83,7 +83,7 @@ export default function Home() {
     const streak = calculateStreak(tempDoneDays);
     setStreak(streak);
 
-    const longestStreak = calculateLongestStreak(tempDays);
+    const longestStreak = calculateLongestStreak(tempDoneDays);
     setLongestStreak(longestStreak);
   }
 
@@ -122,11 +122,18 @@ export default function Home() {
     return streak;
   }
 
-  function calculateLongestStreak(tempDays: StreakDay[])
+  function calculateLongestStreak(doneDays: StreakDay[])
     : number {
+    const sortedDoneDays: StreakDay[] =
+      doneDays.sort((a, b) =>
+        a.year - b.year ||
+        a.monthNr - b.monthNr ||
+        a.dayNr - b.dayNr
+      );
+
     let longestStreak = 0;
     let newLongestStreak = 0;
-    for (const day of tempDays) {
+    for (const day of sortedDoneDays) {
       if (day.done) {
         newLongestStreak++;
         if (newLongestStreak > longestStreak) {
@@ -143,18 +150,21 @@ export default function Home() {
 
   function getNextMonthName(date: Date) {
     const d = new Date(date);
+    d.setDate(1);
     d.setMonth(date.getMonth() + 1);
     return d.toLocaleString('en-US', { month: 'long' });
   }
 
   function getPrevMonthName(date: Date) {
     const d = new Date(date);
+    d.setDate(1);
     d.setMonth(date.getMonth() - 1);
     return d.toLocaleString('en-US', { month: 'long' });
   }
 
   function monthMoveBack() {
     const d = new Date(selectedDate);
+    d.setDate(1);
     d.setMonth(selectedDate.getMonth() - 1);
     setSelectedDate(d);
     updateDays(getDaysForMonth(d));
@@ -162,6 +172,7 @@ export default function Home() {
 
   function monthMoveForward() {
     const d = new Date(selectedDate);
+    d.setDate(1);
     d.setMonth(selectedDate.getMonth() + 1);
     setSelectedDate(d);
     updateDays(getDaysForMonth(d));
