@@ -86,8 +86,14 @@ export default function Home() {
 
   //todo: fix this
   function calculateStreak(doneDays: StreakDay[]): number {
-    if (doneDays.length === 0) return 0;
-    const lastDay = doneDays[doneDays.length - 1];
+    const sortedDoneDays: StreakDay[] =
+      doneDays.sort((a, b) =>
+        a.year - b.year ||
+        a.monthNr - b.monthNr ||
+        a.dayNr - b.dayNr
+      );
+    if (sortedDoneDays.length === 0) return 0;
+    const lastDay = sortedDoneDays[sortedDoneDays.length - 1];
     const today = new Date();
     if (lastDay?.dayNr !== today.getDate() ||
       lastDay?.monthNr !== today.getMonth() ||
@@ -96,13 +102,13 @@ export default function Home() {
     }
     let streak = 1;
     let streakCons = true;
-    let i = doneDays.length - 1;
+    let i = sortedDoneDays.length - 1;
 
     while (streakCons) {
       if (i === 0) return streak;
-      if (doneDays[i - 1].monthNr === doneDays[i].monthNr &&
-        doneDays[i - 1].year === doneDays[i].year &&
-        doneDays[i - 1].dayNr === doneDays[i].dayNr - 1) {
+      if (sortedDoneDays[i - 1].monthNr === sortedDoneDays[i].monthNr &&
+        sortedDoneDays[i - 1].year === sortedDoneDays[i].year &&
+        sortedDoneDays[i - 1].dayNr === sortedDoneDays[i].dayNr - 1) {
         streak++;
         i--;
       } else {
