@@ -2,7 +2,6 @@
 import { useState } from "react";
 import DayBox from "./components/daybox";
 import { StreakDay } from "./models/StreakDay";
-import { Brygada_1918 } from "next/font/google";
 
 export default function Home() {
   const date: Date = new Date();
@@ -88,7 +87,7 @@ export default function Home() {
   //todo: fix this
   function calculateStreak(doneDays: StreakDay[]): number {
     if (doneDays.length === 0) return 0;
-    const lastDay = doneDays.at(-1);
+    const lastDay = doneDays[doneDays.length - 1];
     const today = new Date();
     if (lastDay?.dayNr !== today.getDate() ||
       lastDay?.monthNr !== today.getMonth() ||
@@ -96,13 +95,19 @@ export default function Home() {
       return 0;
     }
     let streak = 1;
+    let streakCons = true;
+    let i = doneDays.length - 1;
 
-    for (let i = doneDays.length - 2; i >= 0; i--) {
-      const day1 = doneDays.at(i);
-      const day2 = doneDays.at(i + 1);
-      if (day1.year === day2.year && day1.monthNr === day2.monthNr && day1.dayNr === day2.dayNr - 1) {
+    while (streakCons) {
+      if (i === 0) return streak;
+      if (doneDays[i - 1].monthNr === doneDays[i].monthNr &&
+        doneDays[i - 1].year === doneDays[i].year &&
+        doneDays[i - 1].dayNr === doneDays[i].dayNr - 1) {
         streak++;
-      } else return streak;
+        i--;
+      } else {
+        streakCons = false;
+      }
     }
 
     return streak;
