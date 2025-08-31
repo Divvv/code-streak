@@ -156,11 +156,17 @@ export default function Home() {
   }
 
   function isNextDay(day: StreakDay, nextDay: StreakDay): boolean {
+    var dayDate = new Date(day.year, day.monthNr, day.dayNr);
+    dayDate.setDate(dayDate.getDate() + 1);
+    var nextDayDate = new Date(nextDay.year, nextDay.monthNr, nextDay.dayNr);
+
     if (
-      day.year === nextDay.year &&
-      day.monthNr === nextDay.monthNr &&
-      day.dayNr + 1 === nextDay.dayNr
-    ) { return true; }
+      dayDate.getFullYear() === nextDayDate.getFullYear() &&
+      dayDate.getMonth() === nextDayDate.getMonth() &&
+      dayDate.getDate() === nextDayDate.getDate()
+    ) {
+      return true;
+    }
 
     return false;
   }
