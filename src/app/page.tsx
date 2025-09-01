@@ -65,6 +65,7 @@ export default function Home() {
     //setLongestStreak(longestStreak);
   }
 
+  // TRY TO NOT CALL THIS FROM SETDONE BUT INSTEAD WHEN RENDERING
   function calculateStreak(doneDays: StreakDay[]): number {
     const sortedDoneDays: StreakDay[] =
       doneDays.sort((a, b) =>
