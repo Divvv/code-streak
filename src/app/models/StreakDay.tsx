@@ -4,20 +4,30 @@ export class StreakDay {
   private _date: Date;
   private _done: boolean;
 
+  public set done(d: boolean) { this._done = d; }
+
   public get dayNr(): number { return this._date.getDate(); }
   public get monthNr(): number { return this._date.getMonth(); }
   public get year(): number { return this._date.getFullYear(); }
 
   public get monthName(): string { return this._date.toLocaleString("en-US", { month: "long" }); }
+  public get dayName(): string { return this._date.toLocaleString("en-US", { weekday: "long" }); }
   public get done(): boolean { return this._done; }
   public get date(): Date { return this._date; }
 
-  public toggleDone() {
-    this._done = !this._done;
+  public copy(): StreakDay {
+    return new StreakDay(
+      new Date(this.year, this.monthNr, this.dayNr),
+      this._done
+    );
   }
 
-  public setDone(b: boolean): void {
-    this._done = b;
+  public withDone(done: boolean): StreakDay {
+    return new StreakDay(this.date, done);
+  }
+
+  public toggleDone() {
+    this._done = !this._done;
   }
 
   public isSame(day: StreakDay): boolean {
@@ -44,9 +54,8 @@ export class StreakDay {
   }
 
   public isAfterToday(): boolean {
-    return this.year > (new Date).getFullYear() ||
-      this.monthNr > (new Date).getMonth() ||
-      this.dayNr > (new Date).getDate();
+    const today = new Date();
+    return this.date.getTime() > today.getTime();
   }
 
   constructor(day: Date, done: boolean = false) {

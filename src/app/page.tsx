@@ -14,7 +14,7 @@ export default function Home() {
   function getDaysForMonth(date: Date) {
     const nrDays = new Date(
       date.getFullYear(),
-      date.getMonth(),
+      date.getMonth() + 1,
       0
     ).getDate();
 
@@ -26,7 +26,7 @@ export default function Home() {
 
     for (const d of days) {
       for (const a of doneDaysState) {
-        if (d.isSame(a)) d.setDone(true);
+        if (d.isSame(a)) d.done = true;
       }
     }
 
@@ -35,72 +35,61 @@ export default function Home() {
 
   function toggleDone(day: StreakDay) {
     if (day.isAfterToday()) return;
+    const tempDay = day.copy();
+    const tempDoneDays: StreakDay[] = [...doneDaysState];
 
-    const tempDay = day;
-    tempDay.done = !tempDay.done;
+    tempDay.toggleDone();
 
-    const tempDoneDays: StreakDay[] = doneDaysState;
-    if (tempDay.done) tempDoneDays.push(tempDay);
+    if (tempDay.done) {
+      tempDoneDays.push(tempDay);
+    }
     else {
       const index = tempDoneDays.findIndex(
-        d => d.day.getDate() === tempDay.day.getDate()
-          && d.day.getMonth() === tempDay.day.getMonth()
-          && d.day.getFullYear() === tempDay.day.getFullYear());
+        d => d.dayNr === tempDay.dayNr
+          && d.monthNr === tempDay.monthNr
+          && d.year === tempDay.year);
       if (index > -1) tempDoneDays.splice(index, 1);
     }
+    console.log(tempDoneDays);
     updateDoneDays(tempDoneDays);
 
-    const tempDays: StreakDay[] = daysState.map(
-      d => (
-        d.day.getDate() === day.day.getDate() &&
-        d.day.getMonth() === day.day.getMonth() &&
-        d.day.getFullYear() === day.day.getFullYear()) ?
-        {
-          ...d,
-          done: tempDay.done
-        } : d);
+    const tempDaysState = daysState.map(d =>
+      tempDay.isSame(d) ? d.withDone(tempDay.done) : d
+    );
+    updateDays(tempDaysState);
 
-    updateDays(tempDays);
+    //const streak = calculateStreak(tempDoneDays);
+    //setStreak(streak);
 
-    const streak = calculateStreak(tempDoneDays);
-    setStreak(streak);
-
-    const longestStreak = calculateLongestStreak(tempDoneDays);
-    setLongestStreak(longestStreak);
+    //const longestStreak = calculateLongestStreak(tempDoneDays);
+    //setLongestStreak(longestStreak);
   }
 
-  //todo: fix this
   function calculateStreak(doneDays: StreakDay[]): number {
     const sortedDoneDays: StreakDay[] =
       doneDays.sort((a, b) =>
-        a.day.getFullYear() - b.day.getFullYear() ||
-        a.day.getMonth() - b.day.getMonth() ||
-        a.day.getDate() - b.day.getDate()
+        a.year - b.year ||
+        a.monthNr - b.monthNr ||
+        a.dayNr - b.dayNr
       );
     if (sortedDoneDays.length === 0) return 0;
     const lastDay = sortedDoneDays[sortedDoneDays.length - 1];
-    const today = new Date();
-    if (lastDay?.day.getDate() !== today.getDate() ||
-      lastDay?.day.getMonth() !== today.getMonth() ||
-      lastDay.day.getFullYear() !== today.getFullYear()) {
-      return 0;
-    }
+
+    if (!lastDay.isToday()) return 0;
+
     let streak = 1;
     let streakCons = true;
     let i = sortedDoneDays.length - 1;
 
     while (streakCons) {
       if (i === 0) return streak;
-      if (sortedDoneDays[i - 1].day.getMonth() === sortedDoneDays[i].day.getMonth() &&
-        sortedDoneDays[i - 1].day.getFullYear() === sortedDoneDays[i].day.getFullYear() &&
-        sortedDoneDays[i - 1].day.getDate() === sortedDoneDays[i].day.getDate() - 1) {
+      if (sortedDoneDays[i - 1].isBefore(sortedDoneDays[i])) {
         streak++;
         i--;
       } else {
         streakCons = false;
       }
     }
-
     return streak;
   }
 
@@ -111,9 +100,9 @@ export default function Home() {
 
     const sortedDoneDays: StreakDay[] =
       doneDays.sort((a, b) =>
-        a.day.getFullYear() - b.day.getFullYear() ||
-        a.day.getMonth() - b.day.getMonth() ||
-        a.day.getDate() - b.day.getDate()
+        a.year - b.year ||
+        a.monthNr - b.monthNr ||
+        a.dayNr - b.dayNr
       );
 
     let longestStreak = 1;
@@ -123,7 +112,7 @@ export default function Home() {
       const nextDay = sortedDoneDays[sortedDoneDays.indexOf(day) + 1];
       if (nextDay === undefined) return longestStreak;
 
-      if (isNextDay(day, nextDay)) {
+      if (day.isBefore(nextDay)) {
         currentLongestStreak++;
         if (currentLongestStreak > longestStreak) {
           longestStreak = currentLongestStreak;
@@ -132,24 +121,7 @@ export default function Home() {
         currentLongestStreak = 1;
       }
     }
-
     return longestStreak;
-  }
-
-  function isNextDay(day: StreakDay, nextDay: StreakDay): boolean {
-    var dayDate = new Date(day.day.getFullYear(), day.day.getMonth(), day.day.getDate());
-    dayDate.setDate(dayDate.getDate() + 1);
-    var nextDayDate = new Date(nextDay.day.getFullYear(), nextDay.day.getMonth(), nextDay.day.getDate());
-
-    if (
-      dayDate.getFullYear() === nextDayDate.getFullYear() &&
-      dayDate.getMonth() === nextDayDate.getMonth() &&
-      dayDate.getDate() === nextDayDate.getDate()
-    ) {
-      return true;
-    }
-
-    return false;
   }
 
   function getNextMonthName(date: Date) {
@@ -203,7 +175,7 @@ export default function Home() {
       </div>
       {daysState.map(day =>
         <DayBox
-          key={day.day.getTime()}
+          key={day.date.getTime()}
           day={day}
           click={() => toggleDone(day)}
         />)}

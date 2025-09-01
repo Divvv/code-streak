@@ -20,6 +20,7 @@ export default function DayBox({ day, click }: DayBoxProps) {
                 ${isAfterTodayClass}`}
         onClick={click}>
         <p> {day.dayNr}</p>
+        <p> {day.dayName}</p>
         <p> {day.monthName}</p>
       </button >
     </>
