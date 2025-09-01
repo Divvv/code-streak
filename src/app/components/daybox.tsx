@@ -6,17 +6,9 @@ interface DayBoxProps {
 };
 
 export default function DayBox({ day, click }: DayBoxProps) {
-  const today = new Date();
-  const isDayToday = day.dayNr === today.getDate() && day.monthNr === today.getMonth()
-    && day.year === today.getFullYear();
   const isDoneClass = day.done ? "done" : "not-done";
-  const isTodayClass = isDayToday ? "today" : null;
-  const isAfterTodayClass =
-    day.year > (new Date).getFullYear() ||
-      day.monthNr > (new Date).getMonth() ||
-      day.dayNr > (new Date).getDate()
-      ? "after-today"
-      : null;
+  const isTodayClass = day.isToday() ? "today" : null;
+  const isAfterTodayClass = day.isAfterToday() ? "after-today" : null;
 
   return (
     <>
@@ -28,7 +20,7 @@ export default function DayBox({ day, click }: DayBoxProps) {
                 ${isAfterTodayClass}`}
         onClick={click}>
         <p> {day.dayNr}</p>
-        <p> {day.dayName}</p>
+        <p> {day.monthName}</p>
       </button >
     </>
   );
